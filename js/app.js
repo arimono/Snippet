@@ -14,7 +14,7 @@
                     const commandsHtml = section.commands.map(cmd => `
                         <div class="command-card rounded-xl p-6 shadow-md border border-gray-700">
                             <h3 class="font-semibold text-lg text-amber-400 mb-2">${cmd.title}</h3>
-                            <p class="text-sm text-gray-400 mb-4 flex-grow">${cmd.description}</p>
+                            <p class="text-sm text-white-400 mb-4 flex-grow">${cmd.description}</p>
                             <div class="command-box bg-gray-900 rounded-md p-3 cursor-pointer">
                                 <code class="text-sm break-words command-text" data-template="${cmd.template.replace(/"/g, '&quot;')}"></code>
                             </div>

