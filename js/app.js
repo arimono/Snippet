@@ -3,7 +3,8 @@
                 attackerIp: document.getElementById('attacker-ip'),
                 victimIp: document.getElementById('victim-ip'),
                 port: document.getElementById('port'),
-                wordlist: document.getElementById('wordlist')
+                wordlist: document.getElementById('wordlist'),
+                domain: document.getElementById('domain')
             };
             const commandContainer = document.getElementById('command-container');
 
@@ -39,12 +40,13 @@
                     AttackerIP: inputs.attackerIp.value || 'ATTACKER_IP',
                     VictimIP: inputs.victimIp.value || 'VICTIM_IP',
                     Port: inputs.port.value || 'PORT',
-                    Wordlist: inputs.wordlist.value || 'WORDLIST_PATH'
+                    Wordlist: inputs.wordlist.value || 'WORDLIST_PATH',
+                    Domain: inputs.domain.value || 'DOMAIN'
                 };
 
                 document.querySelectorAll('.command-text').forEach(codeElement => {
                     let text = codeElement.dataset.template;
-                    text = text.replace(/\$(AttackerIP|VictimIP|Port|Wordlist)/g, (match) => values[match.slice(1)]);
+                    text = text.replace(/\$(AttackerIP|VictimIP|Port|Wordlist|Domain)/g, (match) => values[match.slice(1)]);
                     codeElement.textContent = text;
                 });
             }
