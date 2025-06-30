@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penetration Snippet</title>
+    <link rel="icon" type="image/x-icon" href="/Snippet/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 text-gray-200">
+    <div id="video-background-wrapper">
+        <video id="video-background" autoplay loop muted playsinline>
+            <!-- A royalty-free video from Pexels -->
+            <source src="./Background.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div id="video-overlay"></div>
+    </div>
+    <div class="container mx-auto px-4 py-8 md:px-8 lg:px-12 md:py-12">
+
+        <!-- Global Inputs -->
+        <div class="card-bg rounded-xl p-6 mb-10 shadow-lg border border-gray-700">
+            <h2 class="text-2xl font-semibold text-white mb-4">Global Parameters</h2>
+            <p class="text-gray-400 mb-6">Set your target details here. They will be populated in the commands below. Click  the command to copy.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                    <label for="attacker-ip" class="block text-sm font-medium text-gray-300 mb-2">Attacker IP</label>
+                    <input type="text" id="attacker-ip" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="10.10.10.2">
+                </div>
+                <div>
+                    <label for="victim-ip" class="block text-sm font-medium text-gray-300 mb-2">Victim IP</label>
+                    <input type="text" id="victim-ip" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="10.10.10.5">
+                </div>
+                <div>
+                    <label for="port" class="block text-sm font-medium text-gray-300 mb-2">Port</label>
+                    <input type="text" id="port" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="443">
+                </div>
+                 <div>
+                    <label for="wordlist" class="block text-sm font-medium text-gray-300 mb-2">Wordlist Path</label>
+                    <input type="text" id="wordlist" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="/usr/share/wordlists/rockyou.txt">
+                </div>
+            </div>
+        </div>
+
+        <!-- Command Sections will be injected here by JavaScript -->
+        <div id="command-container" class="space-y-12"></div>
+
+    </div>
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
