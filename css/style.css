@@ -23,6 +23,26 @@ body {
     height: 100%;
     background-color: rgba(17, 24, 39, 0.4); bg-gray-900 with 85% opacity
 }
+#nav {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 100vw; 
+    /* top: 1rem; */
+    transition: top 0.3s ease-in-out;
+}
+
+#nav.nav-hidden {
+    top: -150px;
+}
+.container{
+    margin-top:150px;
+}
+.sticky-top{
+    position: sticky;
+    top: 0;
+}
 .card-bg{
     background: rgba(33, 33, 33, 0.3);
     border-radius: 16px;
@@ -30,6 +50,24 @@ body {
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
     border: 1px solid rgba(33, 33, 33, 0.21);
+}
+
+
+.nav-bg:before, .sub-nav:before{
+    background: rgba(33, 33, 33, 0.5);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    border: 1px solid rgb(33, 33, 33);
+    content: "";
+    display: block;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
 }
 .command-card {
     transition: all 0.3s ease;
@@ -64,6 +102,50 @@ body {
     color: white; padding: 0.5rem 1rem; border-radius: 0.5rem;
     font-weight: 600; animation: fadeInOut 2s ease-in-out;
 }
+.nav-link {
+    transition: all 0.2s ease-in-out;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-link:hover {
+    color: #fbbf24; 
+}
+
+.nav-link.active {
+    color: #f87171;
+    border-bottom-color: #f87171;
+    font-weight: 600;
+}
+.dropdown-item.active {
+    background-color: #b91c1c;
+    color: #f3f4f6;
+}
+
+@media (min-width: 836px) {
+    #nav{
+        border-radius: 0px 0px 10px 10px;
+        border-bottom-color: #f87171!important;
+        border-bottom: 3px solid ;
+    }
+    .container{
+        margin-top:100px;
+    }
+    #nav.nav-hidden {
+        top: -60px;
+        
+    }
+    #nav.nav-hidden:hover {
+        position: fixed;
+        top:0px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 100vw; 
+        transition: top 0.3s ease-in-out;
+    }
+}
+
+
 @keyframes fadeInOut {
     0% { opacity: 0; } 20% { opacity: 1; }
     80% { opacity: 1; } 100% { opacity: 0; }

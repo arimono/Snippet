@@ -12,17 +12,21 @@
 <body class="bg-gray-900 text-gray-200">
     <div id="video-background-wrapper">
         <video id="video-background" autoplay loop muted playsinline>
-            <!-- A royalty-free video from Pexels -->
             <source src="./assets/background.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
         <div id="video-overlay"></div>
     </div>
-    <div class="container mx-auto px-4 py-8 md:px-8 lg:px-12 md:py-12">
-
+    <!-- Navigation -->
+        <nav id="nav"class="nav-bg  p-4 mb-10 shadow-lg border-gray-700 z-20 sticky-top">
+            <ul id="navigation" class="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+            </ul>
+        </nav>
+    <div class="container mx-auto px-4 md:px-8 lg:px-12">
+        
         
         <!-- Global Inputs -->
-        <div class="card-bg rounded-xl p-6 mb-10 shadow-lg border border-gray-700">
+        <div class="card-bg rounded-xl p-6 mb-10 shadow-lg border border-gray-700 relative ">
             <h2 class="text-2xl font-semibold text-red-500 mb-4">Global Parameters</h2>
             <p class="text-white-400 mb-6">Set your target details here. They will be populated in the commands below. Click  the command to copy.</p>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
