@@ -6,58 +6,282 @@
     <title>Penetration Snippet</title>
     <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css">
 </head>
-<body class="bg-gray-900 text-gray-200">
-    <div id="video-background-wrapper">
-        <video id="video-background" autoplay loop muted playsinline>
-            <source src="./assets/background.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <div id="video-overlay"></div>
-    </div>
-    <!-- Navigation -->
-        <nav id="nav"class="nav-bg  p-4 mb-10 shadow-lg border-gray-700 z-20 sticky-top">
-            <ul id="navigation" class="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-            </ul>
-        </nav>
-    <div class="container mx-auto px-4 md:px-8 lg:px-12">
-        
-        
-        <!-- Global Inputs -->
-        <div class="card-bg rounded-xl p-6 mb-10 shadow-lg border border-gray-700 relative ">
-            <h2 class="text-2xl font-semibold text-red-500 mb-4">Global Parameters</h2>
-            <p class="text-white-400 mb-6">Set your target details here. They will be populated in the commands below. Click  the command to copy.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div>
-                    <label for="attacker-ip" class="block text-sm font-medium text-white-300 mb-2">Attacker IP</label>
-                    <input type="text" id="attacker-ip" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="10.10.10.2">
-                </div>
-                <div>
-                    <label for="victim-ip" class="block text-sm font-medium text-white-300 mb-2">Victim IP</label>
-                    <input type="text" id="victim-ip" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="10.10.10.5">
-                </div>
-                <div>
-                    <label for="port" class="block text-sm font-medium text-white-300 mb-2">Port</label>
-                    <input type="text" id="port" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="443">
-                </div>
-                 <div>
-                    <label for="wordlist" class="block text-sm font-medium text-white-300 mb-2">Wordlist Path</label>
-                    <input type="text" id="wordlist" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="/usr/share/wordlists/rockyou.txt">
-                </div>
-                <div>
-                    <label for="domain" class="block text-sm font-medium text-white-300 mb-2">Domain Name</label>
-                    <input type="text" id="domain" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="domainname.com">
-                </div>
-            </div>
+<body>
+    <nav id="nav">
+        <div class="nav-inner">
+            <a class="brand" href="#">
+                <span class="brand-mark"></span>
+                Rimon
+            </a>
+            <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul id="navigation"></ul>
+            <label class="search-wrap" for="snippet-search">
+                <input type="search" id="snippet-search" placeholder="Search snippets...">
+                <span>/</span>
+            </label>
         </div>
+    </nav>
 
-        <!-- Command Sections will be injected here by JavaScript -->
-        <div id="command-container" class="space-y-12"></div>
+    <main class="container">
+        <section class="params-panel">
+            <div class="section-kicker">// GLOBAL PARAMETERS</div>
+            <div class="params-head">
+                <p>Edits below auto-template every snippet. Stored locally.</p>
+                <button id="reset-inputs" type="button">RESET</button>
+            </div>
+            <div class="input-grid">
+                <label>ATTACKER_IP
+                    <input type="text" id="attacker-ip" value="10.10.14.5">
+                </label>
+                <label>VICTIM_IP
+                    <input type="text" id="victim-ip" value="10.10.11.241">
+                </label>
+                <label>PORT
+                    <input type="text" id="port" value="4444">
+                </label>
+                <label>DOMAIN
+                    <input type="text" id="domain" value="htb.local">
+                </label>
+                <label>WORDLIST
+                    <input type="text" id="wordlist" value="/usr/share/wordlists/rockyou.txt">
+                </label>
+            </div>
+        </section>
 
-    </div>
-    <script src="./js/api.js"></script>
+        <header class="hero">
+            <h1 id="page-title">All Commands</h1>
+            <p>Pentest snippets. Click any command to copy with your parameters interpolated.</p>
+        </header>
+
+        <section class="tool-row" aria-label="Snippet filters and editor">
+            <div id="tag-filters" class="tag-filters"></div>
+            <details class="snippet-editor">
+                <summary>Add custom snippet</summary>
+                <form id="custom-snippet-form">
+                    <input id="custom-title" type="text" placeholder="Title" required>
+                    <input id="custom-description" type="text" placeholder="Description">
+                    <textarea id="custom-template" placeholder="Command template, e.g. nmap -sCV $VictimIP" required></textarea>
+                    <select id="custom-tag">
+                        <option>Linux</option>
+                        <option>Windows</option>
+                        <option>AD</option>
+                        <option>Web</option>
+                        <option>PrivEsc</option>
+                    </select>
+                    <button type="submit">SAVE</button>
+                </form>
+            </details>
+        </section>
+
+        <div id="command-container"></div>
+
+        <section id="portfolio-view" class="portfolio-view" hidden>
+            <div class="portfolio-shell">
+                <section class="dossier-layout">
+                    <article class="dossier-card">
+                        <div class="dossier-kicker">
+                            <span class="pulse-dot"></span>
+                            // OPERATOR_DOSSIER
+                            <small>CLR - L4</small>
+                        </div>
+                        <h2>Soung Oo <em>Paing_</em></h2>
+                        <p>IT Engineer specialising in offensive security, networking, and IT/OT infrastructure. OSCP+ and eCPPT certified, with hands-on experience across VAPT remediation, Active Directory, SCADA systems, and CTF-driven offensive practice.</p>
+                        <pre class="boot-log"><code id="boot-log-text"></code></pre>
+                    </article>
+
+                    <aside class="operator-stats">
+                        <article><span>YRS_ACTIVE</span><strong>4+</strong></article>
+                        <article><span>CERTS</span><strong>CORE_FORMATION</strong></article>
+                        <article><span>CORE_SKILLS</span><strong>STRESS_TESTED</strong></article>
+                        <article><span>UPTIME</span><strong>99.9</strong></article>
+                        <article class="status-tile"><span>STATUS</span><strong>SecOps/Gaming</strong><small>ONLINE</small></article>
+                    </aside>
+                </section>
+
+                <section class="portfolio-block">
+                    <div class="block-head"><span>// CAPABILITY_MATRIX</span><small>6 modules</small></div>
+                    <div class="capability-grid">
+                        <article>
+                            <small>01 - ROLE</small>
+                            <h3>IT Engineer</h3>
+                            <p>A&H Controls PTE. LTD. - Singapore - Mar 2023 to present</p>
+                            <div><b>VAPT remediation</b><b>Incident response</b><b>Risk reporting</b><b>Hardening</b></div>
+                        </article>
+                        <article>
+                            <small>02 - OFFENSIVE</small>
+                            <h3>Ethical Hacking</h3>
+                            <p>Penetration testing, vulnerability assessment, exploit fundamentals, and lab research.</p>
+                            <div><b>Nmap</b><b>BloodHound</b><b>Burp</b><b>Metasploit</b><b>Impacket</b></div>
+                        </article>
+                        <article>
+                            <small>03 - INFRA</small>
+                            <h3>Network + Systems</h3>
+                            <p>Firewalls, routing, VPNs, Windows/Linux administration, AD, GPO, and high-availability environments.</p>
+                            <div><b>Cisco</b><b>pfSense</b><b>WireGuard</b><b>Active Directory</b><b>Proxmox</b></div>
+                        </article>
+                        <article>
+                            <small>04 - OT / SCADA</small>
+                            <h3>Industrial Systems</h3>
+                            <p>Ignition, AVEVA, Citect dashboards, IoT pipelines, VPN service, and SMS alert workflows.</p>
+                            <div><b>Ignition 8.1</b><b>AVEVA SP</b><b>Citect</b><b>MQTT</b><b>Modbus</b></div>
+                        </article>
+                        <article>
+                            <small>05 - WEB</small>
+                            <h3>Full-Stack Background</h3>
+                            <p>Production apps across PHP, JavaScript, and Python - from Laravel and Vue.js to Firebase.</p>
+                            <div><b>Laravel</b><b>Vue.js</b><b>WordPress</b><b>Firebase</b><b>Python</b><b>Bash</b></div>
+                        </article>
+                        <article>
+                            <small>06 - LAB</small>
+                            <h3>CTF + Research</h3>
+                            <p>Continuous training on Hack The Box, CTFTime events, and custom Active Directory labs.</p>
+                            <div><b>HTB</b><b>PortSwigger</b><b>TryHackMe</b><b>Custom AD lab</b></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="portfolio-block">
+                    <div class="block-head"><span>// CERTIFICATIONS</span><small>verified - 5</small></div>
+                    <div class="cert-table">
+                        <div><span>01</span><strong>OSCP+</strong><p>OffSec Certified Professional+</p><small>2025</small></div>
+                        <div><span>02</span><strong>eCPPT</strong><p>Certified Professional Penetration Tester</p><small>2024</small></div>
+                        <div><span>03</span><strong>GCC</strong><p>Google Cybersecurity Professional Certificate</p><small>2024</small></div>
+                        <div><span>04</span><strong>IGN-Gold</strong><p>Ignition 8.1 Gold Certified</p><small>2026</small></div>
+                        <div><span>05</span><strong>AVEVA</strong><p>AVEVA System Platform Certified</p><small>2024</small></div>
+                    </div>
+                </section>
+
+                <section class="portfolio-block">
+                    <div class="block-head"><span>// CHANNELS</span><small>secure - outbound</small></div>
+                    <div class="channel-grid">
+                        <a href="https://github.com/arimono" target="_blank" rel="noopener noreferrer"><strong>GitHub</strong><span>@arimono</span></a>
+                        <a href="https://app.hackthebox.com/public/users/2008184" target="_blank" rel="noopener noreferrer"><strong>Hack The Box</strong><span>htb://operator</span></a>
+                        <a href="https://ctftime.org/team/414872" target="_blank" rel="noopener noreferrer"><strong>CTFTime</strong><span>ctf://team</span></a>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <section id="links-view" class="links-view" hidden>
+            <article>
+                <span>WALKTHROUGHS</span>
+                <h2>IppSec</h2>
+                <p>High-signal HTB walkthroughs and methodology.</p>
+                <a href="https://www.youtube.com/@ippsec" target="_blank" rel="noopener noreferrer">youtube.com/@ippsec</a>
+            </article>
+            <article>
+                <span>TESTING</span>
+                <h2>Request Catcher</h2>
+                <p>Quick webhook/OOB callback testing.</p>
+                <a href="https://requestcatcher.com" target="_blank" rel="noopener noreferrer">requestcatcher.com</a>
+            </article>
+            <article>
+                <span>CHEATSHEET</span>
+                <h2>0xdf OffSec</h2>
+                <p>Practical command reference for labs and exams.</p>
+                <a href="https://0xdf.gitlab.io/cheatsheets/offsec" target="_blank" rel="noopener noreferrer">0xdf.gitlab.io/cheatsheets/offsec</a>
+            </article>
+            <article>
+                <span>REVERSE SHELLS</span>
+                <h2>RevShells</h2>
+                <p>Interactive reverse shell generator.</p>
+                <a href="https://www.revshells.com/" target="_blank" rel="noopener noreferrer">revshells.com</a>
+            </article>
+            <article>
+                <span>MINDMAPS</span>
+                <h2>Orange Cyberdefense</h2>
+                <p>Cybersecurity mindmaps for pentest study.</p>
+                <a href="https://orange-cyberdefense.github.io/ocd-mindmaps/" target="_blank" rel="noopener noreferrer">orange-cyberdefense.github.io/ocd-mindmaps</a>
+            </article>
+            <article>
+                <span>ROADMAP</span>
+                <h2>Cyber Security Roadmap</h2>
+                <p>Learning path for cybersecurity fundamentals.</p>
+                <a href="https://roadmap.sh/cyber-security" target="_blank" rel="noopener noreferrer">roadmap.sh/cyber-security</a>
+            </article>
+            <article>
+                <span>REVERSE SHELLS</span>
+                <h2>sundowndev Shells</h2>
+                <p>Reverse shell snippets in one gist.</p>
+                <a href="https://gist.github.com/sundowndev/283efaddbcf896ab405488330d1bbc06" target="_blank" rel="noopener noreferrer">gist.github.com/sundowndev</a>
+            </article>
+            <article>
+                <span>WEB</span>
+                <h2>PortSwigger Academy</h2>
+                <p>Web exploitation labs and explanations.</p>
+                <a href="https://portswigger.net/web-security" target="_blank" rel="noopener noreferrer">portswigger.net/web-security</a>
+            </article>
+            <article>
+                <span>METHOD</span>
+                <h2>OWASP Top 10</h2>
+                <p>Core web application risk categories.</p>
+                <a href="https://owasp.org/www-project-top-ten/" target="_blank" rel="noopener noreferrer">owasp.org/www-project-top-ten</a>
+            </article>
+            <article>
+                <span>METHOD</span>
+                <h2>OWASP WSTG</h2>
+                <p>Web security testing methodology.</p>
+                <a href="https://owasp.org/www-project-web-security-testing-guide/" target="_blank" rel="noopener noreferrer">owasp.org/wstg</a>
+            </article>
+            <article>
+                <span>FRAMEWORK</span>
+                <h2>MITRE ATT&CK</h2>
+                <p>Adversary tactics, techniques, and procedures.</p>
+                <a href="https://attack.mitre.org/" target="_blank" rel="noopener noreferrer">attack.mitre.org</a>
+            </article>
+            <article>
+                <span>CHEATSHEET</span>
+                <h2>HackTricks</h2>
+                <p>Broad pentest and cloud notes.</p>
+                <a href="https://book.hacktricks.wiki/" target="_blank" rel="noopener noreferrer">book.hacktricks.wiki</a>
+            </article>
+            <article>
+                <span>PAYLOADS</span>
+                <h2>PayloadsAllTheThings</h2>
+                <p>Payload patterns for common vulnerability classes.</p>
+                <a href="https://github.com/swisskyrepo/PayloadsAllTheThings" target="_blank" rel="noopener noreferrer">github.com/swisskyrepo/PayloadsAllTheThings</a>
+            </article>
+            <article>
+                <span>PRIVESC</span>
+                <h2>GTFOBins</h2>
+                <p>Unix binary abuse reference.</p>
+                <a href="https://gtfobins.github.io/" target="_blank" rel="noopener noreferrer">gtfobins.github.io</a>
+            </article>
+            <article>
+                <span>WINDOWS</span>
+                <h2>LOLBAS</h2>
+                <p>Windows living-off-the-land binaries and scripts.</p>
+                <a href="https://lolbas-project.github.io/" target="_blank" rel="noopener noreferrer">lolbas-project.github.io</a>
+            </article>
+            <article>
+                <span>LABS</span>
+                <h2>Hack The Box Academy</h2>
+                <p>Structured cybersecurity learning paths.</p>
+                <a href="https://academy.hackthebox.com/" target="_blank" rel="noopener noreferrer">academy.hackthebox.com</a>
+            </article>
+            <article>
+                <span>REV/PWN</span>
+                <h2>Dogbolt</h2>
+                <p>Compare output from multiple decompilers online.</p>
+                <a href="https://dogbolt.org/" target="_blank" rel="noopener noreferrer">dogbolt.org</a>
+            </article>
+            <article>
+                <span>REV/PWN</span>
+                <h2>Godbolt</h2>
+                <p>Compiler Explorer for C/C++ assembly study.</p>
+                <a href="https://godbolt.org/" target="_blank" rel="noopener noreferrer">godbolt.org</a>
+            </article>
+        </section>
+
+    </main>
+    <script src="./js/commands.js"></script>
     <script src="./js/app.js"></script>
 </body>
 </html>
