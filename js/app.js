@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageTitle = document.getElementById('page-title');
     const resetButton = document.getElementById('reset-inputs');
     const tagFilters = document.getElementById('tag-filters');
+    const phaseFilters = document.getElementById('phase-filters');
     const customForm = document.getElementById('custom-snippet-form');
     const linksView = document.getElementById('links-view');
     const portfolioView = document.getElementById('portfolio-view');
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tags = ['All', 'Linux', 'Windows', 'AD', 'Web', 'PrivEsc'];
     let activeCategory = 'All';
     let activeTag = 'All';
+    let activePhase = 'All';
     let customSnippets = loadCustomSnippets();
     const bootSets = [
         [
@@ -129,6 +131,15 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
+    function renderPhaseFilters() {
+        const phases = ['All', ...Object.keys(getData())];
+        phaseFilters.innerHTML = phases.map(phase => `
+            <button type="button" class="phase-filter${phase === activePhase ? ' active' : ''}" data-phase="${escapeHtml(phase)}">
+                ${escapeHtml(phase)}
+            </button>
+        `).join('');
+    }
+
     function renderCommands() {
         commandContainer.innerHTML = Object.entries(getData()).flatMap(([mainCategory, sections]) =>
             sections.map(section => {
@@ -205,11 +216,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.querySelectorAll('.command-section').forEach(section => {
             const inCategory = activeCategory === 'All' || section.dataset.main === activeCategory;
+            const inPhase = activePhase === 'All' || section.dataset.main === activePhase;
             let visibleCards = 0;
 
             section.querySelectorAll('.command-card').forEach(card => {
                 const inTag = activeTag === 'All' || card.dataset.tags.split(' ').includes(activeTag);
-                const match = inCategory && inTag && card.dataset.search.includes(query);
+                const match = inCategory && inPhase && inTag && card.dataset.search.includes(query);
                 card.classList.toggle('is-filtered-out', !match);
                 if (match) visibleCards++;
             });
@@ -222,9 +234,18 @@ document.addEventListener('DOMContentLoaded', () => {
         pageTitle.textContent = activeCategory === 'All' ? 'All Commands' : activeCategory;
     }
 
+    function transitionView(callback) {
+        document.body.classList.add('is-transitioning');
+        window.setTimeout(() => {
+            callback();
+            requestAnimationFrame(() => document.body.classList.remove('is-transitioning'));
+        }, 120);
+    }
+
     function rerender() {
         renderNavigation();
         renderTagFilters();
+        renderPhaseFilters();
         renderCommands();
         updateAllCommandText();
         applyFilters();
@@ -281,20 +302,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const link = event.target.closest('a[data-category]');
         if (!link) return;
         event.preventDefault();
-        activeCategory = link.dataset.category;
         document.body.classList.remove('nav-open');
         navToggle.setAttribute('aria-expanded', 'false');
-        renderNavigation();
-        applyFilters();
+        transitionView(() => {
+            activeCategory = link.dataset.category;
+            activePhase = 'All';
+            renderNavigation();
+            renderPhaseFilters();
+            applyFilters();
+        });
     });
 
     brand.addEventListener('click', event => {
         event.preventDefault();
-        activeCategory = 'Portfolio';
         document.body.classList.remove('nav-open');
         navToggle.setAttribute('aria-expanded', 'false');
-        renderNavigation();
-        applyFilters();
+        transitionView(() => {
+            activeCategory = 'Portfolio';
+            activePhase = 'All';
+            renderNavigation();
+            renderPhaseFilters();
+            applyFilters();
+        });
     });
 
     navToggle.addEventListener('click', () => {
@@ -312,9 +341,23 @@ document.addEventListener('DOMContentLoaded', () => {
     tagFilters.addEventListener('click', event => {
         const button = event.target.closest('button[data-tag]');
         if (!button) return;
-        activeTag = button.dataset.tag;
-        renderTagFilters();
-        applyFilters();
+        transitionView(() => {
+            activeTag = button.dataset.tag;
+            renderTagFilters();
+            applyFilters();
+        });
+    });
+
+    phaseFilters.addEventListener('click', event => {
+        const button = event.target.closest('button[data-phase]');
+        if (!button) return;
+        transitionView(() => {
+            activePhase = button.dataset.phase;
+            activeCategory = 'All';
+            renderNavigation();
+            renderPhaseFilters();
+            applyFilters();
+        });
     });
 
     customForm.addEventListener('submit', event => {
@@ -329,6 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveCustomSnippets();
         customForm.reset();
         activeCategory = 'Custom';
+        activePhase = 'All';
         rerender();
     });
 
@@ -360,7 +404,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (deleteButton) {
             customSnippets = customSnippets.filter(cmd => cmd.id !== deleteButton.dataset.id);
             saveCustomSnippets();
-            if (!customSnippets.length && activeCategory === 'Custom') activeCategory = 'All';
+            if (!customSnippets.length && (activeCategory === 'Custom' || activePhase === 'Custom')) {
+                activeCategory = 'All';
+                activePhase = 'All';
+            }
             rerender();
             return;
         }

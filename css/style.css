@@ -303,13 +303,25 @@ body::after {
     margin: -18px 0 36px;
 }
 
+.filter-stack {
+    display: grid;
+    gap: 0.65rem;
+}
+
 .tag-filters {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
 }
 
+.phase-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
 .tag-filter,
+.phase-filter,
 .snippet-editor summary,
 .snippet-editor button,
 .custom-delete {
@@ -322,13 +334,22 @@ body::after {
     letter-spacing: 0.14em;
 }
 
-.tag-filter {
+.tag-filter,
+.phase-filter {
     min-height: 30px;
     padding: 0 0.7rem;
 }
 
+.phase-filter {
+    min-height: 26px;
+    color: #87939c;
+    font-size: 0.62rem;
+}
+
 .tag-filter:hover,
 .tag-filter.active,
+.phase-filter:hover,
+.phase-filter.active,
 .snippet-editor summary:hover,
 .snippet-editor button:hover,
 .custom-delete:hover {
@@ -579,6 +600,25 @@ body::after {
 
 .is-filtered-out {
     display: none;
+}
+
+#command-container,
+#links-view,
+#portfolio-view,
+.tool-row,
+.hero,
+.params-panel {
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+body.is-transitioning #command-container,
+body.is-transitioning #links-view,
+body.is-transitioning #portfolio-view,
+body.is-transitioning .tool-row,
+body.is-transitioning .hero,
+body.is-transitioning .params-panel {
+    opacity: 0;
+    transform: translateY(6px);
 }
 
 .links-view,

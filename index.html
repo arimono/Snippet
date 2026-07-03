@@ -61,7 +61,10 @@
         </header>
 
         <section class="tool-row" aria-label="Snippet filters and editor">
-            <div id="tag-filters" class="tag-filters"></div>
+            <div class="filter-stack">
+                <div id="tag-filters" class="tag-filters"></div>
+                <div id="phase-filters" class="phase-filters" aria-label="Snippet phase filters"></div>
+            </div>
             <details class="snippet-editor">
                 <summary>Add custom snippet</summary>
                 <form id="custom-snippet-form">
