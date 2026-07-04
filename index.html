@@ -34,7 +34,10 @@
             <div class="section-kicker">// GLOBAL PARAMETERS</div>
             <div class="params-head">
                 <p>Edits below auto-template every snippet. Stored locally.</p>
-                <button id="reset-inputs" type="button">RESET</button>
+                <div class="params-actions">
+                    <button id="export-commands" type="button">EXPORT</button>
+                    <button id="reset-inputs" type="button">RESET</button>
+                </div>
             </div>
             <div class="input-grid">
                 <label>ATTACKER_IP
@@ -43,11 +46,20 @@
                 <label>VICTIM_IP
                     <input type="text" id="victim-ip" value="10.10.11.241">
                 </label>
-                <label>PORT
-                    <input type="text" id="port" value="4444">
+                <label>ATTACKER_PORT
+                    <input type="text" id="attacker-port" value="4444">
+                </label>
+                <label>VICTIM_PORT
+                    <input type="text" id="victim-port" value="80">
                 </label>
                 <label>DOMAIN
                     <input type="text" id="domain" value="htb.local">
+                </label>
+                <label>USERNAME
+                    <input type="text" id="username" value="svc_web">
+                </label>
+                <label>PASSWORD
+                    <input type="text" id="password" value="Password123!">
                 </label>
                 <label>WORDLIST
                     <input type="text" id="wordlist" value="/usr/share/wordlists/rockyou.txt">
@@ -71,6 +83,16 @@
                     <input id="custom-title" type="text" placeholder="Title" required>
                     <input id="custom-description" type="text" placeholder="Description">
                     <textarea id="custom-template" placeholder="Command template, e.g. nmap -sCV $VictimIP" required></textarea>
+                    <div class="variable-picks" aria-label="Insert template variables">
+                        <button type="button" data-token="$AttackerIP">$AttackerIP</button>
+                        <button type="button" data-token="$VictimIP">$VictimIP</button>
+                        <button type="button" data-token="$AttackerPort">$AttackerPort</button>
+                        <button type="button" data-token="$VictimPort">$VictimPort</button>
+                        <button type="button" data-token="$Domain">$Domain</button>
+                        <button type="button" data-token="$Username">$Username</button>
+                        <button type="button" data-token="$Password">$Password</button>
+                        <button type="button" data-token="$Wordlist">$Wordlist</button>
+                    </div>
                     <select id="custom-tag">
                         <option>Linux</option>
                         <option>Windows</option>
@@ -92,7 +114,7 @@
                         <div class="dossier-kicker">
                             <span class="pulse-dot"></span>
                             // OPERATOR_DOSSIER
-                            <small>CLR - L4</small>
+                            <small id="cultivation-level">SOUL_TEMPERING</small>
                         </div>
                         <h2>Soung Oo <em>Paing_</em></h2>
                         <p>IT Engineer specialising in offensive security, networking, and IT/OT infrastructure. OSCP+ and eCPPT certified, with hands-on experience across VAPT remediation, Active Directory, SCADA systems, and CTF-driven offensive practice.</p>
@@ -100,11 +122,11 @@
                     </article>
 
                     <aside class="operator-stats">
-                        <article><span>YRS_ACTIVE</span><strong>4+</strong></article>
-                        <article><span>CERTS</span><strong>CORE_FORMATION</strong></article>
-                        <article><span>CORE_SKILLS</span><strong>STRESS_TESTED</strong></article>
+                        <article><span>YRS_ACTIVE</span><strong id="yrs-active">4+</strong></article>
+                        <article><span>LEVEL</span><strong id="level-name">SOUL_TEMPERING</strong></article>
+                        <article><span>CORE_SKILLS</span><strong id="core-skill">STRESS_TESTED</strong></article>
                         <article><span>UPTIME</span><strong>99.9</strong></article>
-                        <article class="status-tile"><span>STATUS[SecOps/Gaming]</span><small>ONLINE</small></article>
+                        <article class="status-tile"><span>STATUS[SecOps/Gaming]</span><small id="operator-status">ONLINE</small></article>
                     </aside>
                 </section>
 
@@ -184,6 +206,24 @@
                 <h2>Request Catcher</h2>
                 <p>Quick webhook/OOB callback testing.</p>
                 <a href="https://requestcatcher.com" target="_blank" rel="noopener noreferrer">requestcatcher.com</a>
+            </article>
+            <article>
+                <span>ENCODING</span>
+                <h2>CyberChef</h2>
+                <p>Decode, transform, and inspect payloads or captured data.</p>
+                <a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">gchq.github.io/CyberChef</a>
+            </article>
+            <article>
+                <span>HASHES</span>
+                <h2>Hash Analyzer</h2>
+                <p>Identify likely hash types before cracking.</p>
+                <a href="https://www.tunnelsup.com/hash-analyzer/" target="_blank" rel="noopener noreferrer">tunnelsup.com/hash-analyzer</a>
+            </article>
+            <article>
+                <span>HASHES</span>
+                <h2>CrackStation</h2>
+                <p>Quick lookup for common unsalted hashes.</p>
+                <a href="https://crackstation.net/" target="_blank" rel="noopener noreferrer">crackstation.net</a>
             </article>
             <article>
                 <span>CHEATSHEET</span>
@@ -284,7 +324,6 @@
         </section>
 
     </main>
-    <script src="./js/commands.js"></script>
     <script src="./js/app.js"></script>
 </body>
 </html>

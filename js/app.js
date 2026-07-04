@@ -2,8 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputs = {
         attackerIp: document.getElementById('attacker-ip'),
         victimIp: document.getElementById('victim-ip'),
-        port: document.getElementById('port'),
+        attackerPort: document.getElementById('attacker-port'),
+        victimPort: document.getElementById('victim-port'),
         domain: document.getElementById('domain'),
+        username: document.getElementById('username'),
+        password: document.getElementById('password'),
         wordlist: document.getElementById('wordlist')
     };
     const defaults = Object.fromEntries(Object.values(inputs).map(input => [input.id, input.value]));
@@ -12,9 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('snippet-search');
     const pageTitle = document.getElementById('page-title');
     const resetButton = document.getElementById('reset-inputs');
+    const exportButton = document.getElementById('export-commands');
     const tagFilters = document.getElementById('tag-filters');
     const phaseFilters = document.getElementById('phase-filters');
     const customForm = document.getElementById('custom-snippet-form');
+    const customTemplate = document.getElementById('custom-template');
     const linksView = document.getElementById('links-view');
     const portfolioView = document.getElementById('portfolio-view');
     const bootLogText = document.getElementById('boot-log-text');
@@ -28,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeCategory = 'All';
     let activeTag = 'All';
     let activePhase = 'All';
+    let commandsData = {};
     let customSnippets = loadCustomSnippets();
     const bootSets = [
         [
@@ -49,9 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
             'Ready'
         ],
         [
-            'ffuf -u http://$VictimIP:$Port/FUZZ -w $Wordlist -t 40',
-            'ffuf -u http://$VictimIP:$Port -H "Host: FUZZ.$Domain" -w $Wordlist -fs SIZE',
-            'ffuf -u http://$VictimIP:$Port/FUZZ -w $Wordlist -e .php,.txt,.html',
+            'ffuf -u http://$VictimIP:$VictimPort/FUZZ -w $Wordlist -t 40',
+            'ffuf -u http://$VictimIP:$VictimPort -H "Host: FUZZ.$Domain" -w $Wordlist -fs SIZE',
+            'ffuf -u http://$VictimIP:$VictimPort/FUZZ -w $Wordlist -e .php,.txt,.html',
             'Ready'
         ],
         [
@@ -69,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         '"': '&quot;',
         "'": '&#39;'
     }[char]));
+    const escapeRegex = text => String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const slug = text => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
     function inferTags(mainCategory, section, cmd) {
@@ -92,6 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveCustomSnippets() {
         localStorage.setItem('custom-snippets', JSON.stringify(customSnippets));
+    }
+
+    async function loadCommandsData() {
+        const response = await fetch('./js/commands.json');
+        if (!response.ok) throw new Error(`commands.json ${response.status}`);
+        commandsData = await response.json();
     }
 
     function getData() {
@@ -181,14 +194,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const values = {
             AttackerIP: inputs.attackerIp.value || 'ATTACKER_IP',
             VictimIP: inputs.victimIp.value || 'VICTIM_IP',
-            Port: inputs.port.value || 'PORT',
+            AttackerPort: inputs.attackerPort.value || 'ATTACKER_PORT',
+            VictimPort: inputs.victimPort.value || 'VICTIM_PORT',
             Wordlist: inputs.wordlist.value || 'WORDLIST_PATH',
-            Domain: inputs.domain.value || 'DOMAIN'
+            Domain: inputs.domain.value || 'DOMAIN',
+            Username: inputs.username.value || 'USERNAME',
+            Password: inputs.password.value || 'PASSWORD'
         };
 
         document.querySelectorAll('.command-text').forEach(codeElement => {
-            const text = codeElement.dataset.template.replace(/\$(AttackerIP|VictimIP|Port|Wordlist|Domain)/g, match => values[match.slice(1)]);
-            codeElement.innerHTML = escapeHtml(text).replace(/(10\.\d+\.\d+\.\d+|htb\.local|domainname\.com|\/usr\/share\/wordlists\/rockyou\.txt|4444|443)/g, '<mark>$1</mark>');
+            const text = codeElement.dataset.template.replace(/\$(AttackerIP|VictimIP|AttackerPort|VictimPort|Wordlist|Domain|Username|Password)/g, match => values[match.slice(1)]);
+            const marks = Object.values(values)
+                .map(escapeHtml)
+                .sort((a, b) => b.length - a.length)
+                .map(escapeRegex);
+            codeElement.innerHTML = escapeHtml(text).replace(new RegExp(`(${marks.join('|')})`, 'g'), '<mark>$1</mark>');
         });
     }
 
@@ -293,17 +313,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.addEventListener('scroll', () => {
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
-            nav.classList.toggle('nav-hidden', scrollTop > 80 && scrollTop > lastScrollTop);
+            const shouldHide = scrollTop > 80 && scrollTop > lastScrollTop && !document.body.classList.contains('nav-open');
+            nav.classList.toggle('nav-hidden', shouldHide);
             lastScrollTop = Math.max(scrollTop, 0);
         }, { passive: true });
+    }
+
+    function closeNavMenu() {
+        document.body.classList.add('nav-closing');
+        document.body.classList.remove('nav-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        requestAnimationFrame(() => document.body.classList.remove('nav-closing'));
+    }
+
+    function exportCommands() {
+        const blob = new Blob([JSON.stringify(getData(), null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'commands.json';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 0);
+    }
+
+    function updateOperatorStatus() {
+        const levels = ['QI_CONDENSATION', 'FOUNDATION_ESTABLISHMENT', 'CORE_FORMATION', 'SOUL_TEMPERING', 'SPIRIT_ASCENSION', 'TRUE_VITALITY', 'QI_HARMONISATION', 'ESSENCE_REFINEMENT', 'LIMIT_TRANSCENDENCE'];
+        const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Singapore',
+            year: 'numeric',
+            month: 'numeric',
+            hour: 'numeric',
+            hour12: false
+        }).formatToParts(new Date()).map(part => [part.type, part.value]));
+        const hour = Number(parts.hour) % 24;
+        const years = Number(parts.year) - 2021 - (Number(parts.month) < 12 ? 1 : 0);
+        const status = hour < 8 ? 'SLEEPING' : hour < 18 ? 'ONLINE' : hour < 20 ? 'STUDYING' : 'GAMING/PERSONAL';
+        const statusClass = `status-${status.split('/')[0].toLowerCase()}`;
+        const level = levels[Math.min(Math.max(years - 1, 0), levels.length - 1)];
+
+        const yrsActive = document.getElementById('yrs-active');
+        const operatorStatus = document.getElementById('operator-status');
+        const levelName = document.getElementById('level-name');
+        const cultivationLevel = document.getElementById('cultivation-level');
+        if (yrsActive) yrsActive.textContent = `${years}+`;
+        if (levelName) levelName.textContent = level;
+        if (cultivationLevel) cultivationLevel.textContent = level;
+        if (operatorStatus) {
+            operatorStatus.textContent = status;
+            operatorStatus.className = statusClass;
+        }
+    }
+
+    function updateCoreSkill() {
+        const phrases = [
+            'STRESS_TESTED',
+            'SKILLS THAT SURVIVED PROD',
+            'SKILLS UNDER FIRE',
+            'PANIC-PROOF SKILLS',
+            'DEBUGGED & DEPLOYED',
+            'SKILLS WITH SCARS',
+            'NOT JUST THEORY',
+            'LAB_TESTED, FIELD_APPROVED',
+            'SCRIPT KIDDIE',
+            'PATCHED UNDER PRESSURE',
+            'INCIDENT-SEASONED',
+            'BREAK/FIX FLUENT'
+        ];
+        const coreSkill = document.getElementById('core-skill');
+        if (coreSkill) coreSkill.textContent = phrases[Math.floor(Math.random() * phrases.length)];
     }
 
     navigation.addEventListener('click', event => {
         const link = event.target.closest('a[data-category]');
         if (!link) return;
         event.preventDefault();
-        document.body.classList.remove('nav-open');
-        navToggle.setAttribute('aria-expanded', 'false');
+        closeNavMenu();
         transitionView(() => {
             activeCategory = link.dataset.category;
             activePhase = 'All';
@@ -315,8 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     brand.addEventListener('click', event => {
         event.preventDefault();
-        document.body.classList.remove('nav-open');
-        navToggle.setAttribute('aria-expanded', 'false');
+        closeNavMenu();
         transitionView(() => {
             activeCategory = 'Portfolio';
             activePhase = 'All';
@@ -327,14 +409,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     navToggle.addEventListener('click', () => {
-        const isOpen = document.body.classList.toggle('nav-open');
-        navToggle.setAttribute('aria-expanded', String(isOpen));
+        if (document.body.classList.contains('nav-open')) {
+            closeNavMenu();
+            return;
+        }
+        document.body.classList.add('nav-open');
+        navToggle.setAttribute('aria-expanded', 'true');
     });
 
     window.addEventListener('resize', () => {
         if (window.innerWidth > 900) {
-            document.body.classList.remove('nav-open');
-            navToggle.setAttribute('aria-expanded', 'false');
+            closeNavMenu();
         }
     });
 
@@ -358,6 +443,17 @@ document.addEventListener('DOMContentLoaded', () => {
             renderPhaseFilters();
             applyFilters();
         });
+    });
+
+    customForm.addEventListener('click', event => {
+        const button = event.target.closest('button[data-token]');
+        if (!button) return;
+        const token = button.dataset.token;
+        const start = customTemplate.selectionStart;
+        const end = customTemplate.selectionEnd;
+        customTemplate.value = `${customTemplate.value.slice(0, start)}${token}${customTemplate.value.slice(end)}`;
+        customTemplate.focus();
+        customTemplate.setSelectionRange(start + token.length, start + token.length);
     });
 
     customForm.addEventListener('submit', event => {
@@ -399,6 +495,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAllCommandText();
     });
 
+    exportButton.addEventListener('click', exportCommands);
+
     commandContainer.addEventListener('click', event => {
         const deleteButton = event.target.closest('.custom-delete');
         if (deleteButton) {
@@ -433,8 +531,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    loadInputsFromLocalStorage();
-    rerender();
-    startBootLog();
-    setupAutoHideNav();
+    loadCommandsData().then(() => {
+        loadInputsFromLocalStorage();
+        updateOperatorStatus();
+        updateCoreSkill();
+        setInterval(updateOperatorStatus, 60000);
+        setInterval(updateCoreSkill, 1800000);
+        rerender();
+        startBootLog();
+        setupAutoHideNav();
+    }).catch(error => {
+        commandContainer.innerHTML = `<div class="empty-state" style="display:block">Failed to load commands.json: ${escapeHtml(error.message)}</div>`;
+    });
 });
