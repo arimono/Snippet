@@ -9,7 +9,7 @@
     --dim: #60717c;
     --cyan: #00f0ff;
     --page-gutter: 16px;
-    --page-max: 1536px;
+    --page-max: 100%;
 }
 
 * {
@@ -75,7 +75,8 @@ body::after {
     grid-template-columns: auto 1fr minmax(220px, 320px);
     gap: 1.25rem;
     align-items: center;
-    width: min(var(--page-max), calc(100% - (var(--page-gutter) * 2)));
+    width: calc(100% - (var(--page-gutter) * 2));
+    max-width: var(--page-max);
     min-height: 52px;
     margin: 0 auto;
 }
@@ -219,7 +220,8 @@ body.nav-open .nav-toggle span:last-child {
 }
 
 .container {
-    width: min(var(--page-max), calc(100% - (var(--page-gutter) * 2)));
+    width: calc(100% - (var(--page-gutter) * 2));
+    max-width: var(--page-max);
     margin: 0 auto;
     padding: 74px 0 72px;
 }
@@ -1123,10 +1125,39 @@ body.is-transitioning .params-panel {
     font: 0.72rem "JetBrains Mono", monospace;
 }
 
+@media (min-width: 640px) {
+    :root {
+        --page-max: 608px;
+    }
+}
+
+@media (min-width: 768px) {
+    :root {
+        --page-max: 720px;
+    }
+}
+
+@media (min-width: 1024px) {
+    :root {
+        --page-max: 960px;
+    }
+}
+
+@media (min-width: 1280px) {
+    :root {
+        --page-max: 1180px;
+    }
+}
+
+@media (min-width: 1536px) {
+    :root {
+        --page-max: 1480px;
+    }
+}
+
 @media (max-width: 1100px) {
     .container {
-        width: 100%;
-        padding: 76px 16px 72px;
+        padding: 76px 0 72px;
     }
 
     .nav-inner {
