@@ -718,6 +718,19 @@ body.is-transitioning .params-panel {
     border-color: rgba(0, 240, 255, 0.36);
 }
 
+.links-view .link-spotlight {
+    min-height: 132px;
+    grid-column: 1 / -1;
+    border-color: rgba(0, 240, 255, 0.3);
+    background:
+        linear-gradient(90deg, rgba(0, 240, 255, 0.12), transparent 32%),
+        linear-gradient(120deg, rgba(3, 13, 20, 0.94), rgba(6, 20, 24, 0.72));
+}
+
+.links-view .link-spotlight h2 {
+    font-size: 1.45rem;
+}
+
 .links-view span,
 .portfolio-view span {
     color: var(--cyan);
@@ -929,9 +942,10 @@ body.is-transitioning .params-panel {
 }
 
 .operator-stats span {
-    color: #8a99a4;
+    color: #c7d7df;
     font: 0.65rem "JetBrains Mono", monospace;
     letter-spacing: 0.18em;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.18);
 }
 
 .operator-stats strong {
@@ -1009,10 +1023,6 @@ body.is-transitioning .params-panel {
     border: 1px solid rgba(124, 245, 255, 0.16);
     border-radius: 9px;
     background: rgba(4, 14, 22, 0.82);
-}
-
-.capability-grid article:nth-child(3) {
-    border-color: rgba(0, 240, 255, 0.42);
 }
 
 .capability-grid small {
