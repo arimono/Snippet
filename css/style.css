@@ -595,6 +595,21 @@ body.nav-open .nav-toggle span:last-child {
     color: #ff9d9d;
 }
 
+.noise-tag[data-noise="Low"] {
+    border-color: rgba(143, 255, 220, 0.24);
+    color: #8fffdc;
+}
+
+.noise-tag[data-noise="Med"] {
+    border-color: rgba(255, 210, 143, 0.28);
+    color: #ffd28f;
+}
+
+.noise-tag[data-noise="High"] {
+    border-color: rgba(255, 157, 157, 0.3);
+    color: #ff9d9d;
+}
+
 .command-card p {
     margin: 0;
     color: #abb8c2;

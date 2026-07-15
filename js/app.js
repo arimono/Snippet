@@ -89,6 +89,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return found.length ? found : ['Linux'];
     }
 
+    function inferNoise(mainCategory, section, cmd) {
+        if (cmd.noise) return cmd.noise;
+        const text = `${mainCategory} ${section.category} ${cmd.title} ${cmd.description} ${cmd.template}`.toLowerCase();
+        if (/nmap -p-|--script vuln|-a -t4|hydra|hashcat|ffuf|gobuster|feroxbuster|nikto|linpeas|winpeas|bloodhound|secretsdump|dcsync|certipy|chisel|nc -nlvp|socat/.test(text)) return 'High';
+        if (/nmap|whatweb|curl|dig|rpcclient|smbmap|enum4linux|nxc|ldap|mssql|sudo -l|whoami|systeminfo|wmic|reg query|find /.test(text)) return 'Med';
+        return 'Low';
+    }
+
     function loadCustomSnippets() {
         try {
             return JSON.parse(localStorage.getItem('custom-snippets') || '[]');
@@ -159,12 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const categoryId = slug(`${mainCategory}-${section.category}`);
                 const commandsHtml = section.commands.map(cmd => {
                     const cardTags = cmd.tag ? [cmd.tag] : inferTags(mainCategory, section, cmd);
-                    const search = `${mainCategory} ${section.category} ${cardTags.join(' ')} ${cmd.title} ${cmd.description} ${cmd.template}`.toLowerCase();
+                    const noise = inferNoise(mainCategory, section, cmd);
+                    const search = `${mainCategory} ${section.category} ${cardTags.join(' ')} ${noise} ${cmd.title} ${cmd.description} ${cmd.template}`.toLowerCase();
                     return `
                         <article class="command-card" data-tags="${cardTags.join(' ')}" data-search="${escapeHtml(search)}">
                             <div class="card-top">
                                 <h3>${escapeHtml(cmd.title)}</h3>
-                                <div class="tag-list">${cardTags.map(tag => `<span class="tag" data-tag="${tag}">${escapeHtml(tag)}</span>`).join('')}</div>
+                                <div class="tag-list">
+                                    ${cardTags.map(tag => `<span class="tag" data-tag="${tag}">${escapeHtml(tag)}</span>`).join('')}
+                                    <span class="tag noise-tag" data-noise="${escapeHtml(noise)}">NOISE:${escapeHtml(noise)}</span>
+                                </div>
                                 ${mainCategory === 'Custom' ? `<button class="custom-delete" type="button" data-id="${escapeHtml(cmd.id)}">DEL</button>` : ''}
                             </div>
                             <p>${escapeHtml(cmd.description || 'Custom local snippet.')}</p>
